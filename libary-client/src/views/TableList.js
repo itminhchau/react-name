@@ -1,21 +1,6 @@
-/*!
 
-=========================================================
-* Black Dashboard React v1.2.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/black-dashboard-react
-* Copyright 2020 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/black-dashboard-react/blob/master/LICENSE.md)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
-import React from "react";
+import React, { useState, useEffect } from "react";
+import '../styles.scss';
 
 // reactstrap components
 import {
@@ -26,141 +11,102 @@ import {
   Table,
   Row,
   Col,
+  Button,
+
 } from "reactstrap";
+import axios from 'axios';
+import AddModal from "components/AddModal";
+import EditModal from "components/EditModal";
 
 function Tables() {
+  const [openAdd, setopenAdd] = useState(false)
+  const [openEdit, setopenEdit] = useState(false)
+  const [data, setData] = useState([]);
+  const [selectedBook, setSelectedBook] = useState({})
+
+  const handleAddModal = () => setopenAdd(prev => !prev)
+
+  const handleEditModal = () => setopenEdit(prev => !prev)
+
+  useEffect(() => {
+    const getBook = async () => {
+      const result = await axios(
+        'http://localhost:8080/book',
+      );
+      setData(result.data);
+    }
+    getBook();
+  }, []);
+
+  if (data.length < 1) {
+    return <h2>book empty</h2>
+  }
+
+  const addBook = async (book) => {
+    const res = await axios.post('http://localhost:8080/book/create', book)
+    const newBook = res.data;
+    setData([...data, { ...newBook }])
+    setopenAdd(false)
+  }
+
+  const editBook = async (id, book) => {
+    const res = await axios.patch('http://localhost:8080/book/' + id, book)
+    const newBook = res.data;
+    setData(data.map(item => item._id === id ? { ...newBook } : item))
+    setopenEdit(false);
+    setSelectedBook({})
+  }
+
+  const deleteBook = async (id) => {
+    const res = await axios.delete('http://localhost:8080/book/' + id)
+    const newBook = res.data;
+    setData(data.filter(item => item._id !== id))
+    console.log(newBook);
+    setopenEdit(false);
+    setSelectedBook({})
+  }
+
+  const selectBook = (book) => {
+    setopenEdit(true);
+    setSelectedBook(book)
+  }
+
   return (
     <>
       <div className="content">
         <Row>
           <Col md="12">
             <Card>
-              <CardHeader>
-                <CardTitle tag="h4">Simple Table</CardTitle>
+              <CardHeader className="header-table">
+                <CardTitle tag="h4">Books</CardTitle>
+                <Button onClick={handleAddModal} variant="success">Add book</Button>
               </CardHeader>
               <CardBody>
                 <Table className="tablesorter" responsive>
                   <thead className="text-primary">
                     <tr>
                       <th>Name</th>
-                      <th>Country</th>
-                      <th>City</th>
-                      <th className="text-center">Salary</th>
+                      <th>description</th>
+                      <th>price</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td>Dakota Rice</td>
-                      <td>Niger</td>
-                      <td>Oud-Turnhout</td>
-                      <td className="text-center">$36,738</td>
-                    </tr>
-                    <tr>
-                      <td>Minerva Hooper</td>
-                      <td>Curaçao</td>
-                      <td>Sinaai-Waas</td>
-                      <td className="text-center">$23,789</td>
-                    </tr>
-                    <tr>
-                      <td>Sage Rodriguez</td>
-                      <td>Netherlands</td>
-                      <td>Baileux</td>
-                      <td className="text-center">$56,142</td>
-                    </tr>
-                    <tr>
-                      <td>Philip Chaney</td>
-                      <td>Korea, South</td>
-                      <td>Overland Park</td>
-                      <td className="text-center">$38,735</td>
-                    </tr>
-                    <tr>
-                      <td>Doris Greene</td>
-                      <td>Malawi</td>
-                      <td>Feldkirchen in Kärnten</td>
-                      <td className="text-center">$63,542</td>
-                    </tr>
-                    <tr>
-                      <td>Mason Porter</td>
-                      <td>Chile</td>
-                      <td>Gloucester</td>
-                      <td className="text-center">$78,615</td>
-                    </tr>
-                    <tr>
-                      <td>Jon Porter</td>
-                      <td>Portugal</td>
-                      <td>Gloucester</td>
-                      <td className="text-center">$98,615</td>
-                    </tr>
-                  </tbody>
-                </Table>
-              </CardBody>
-            </Card>
-          </Col>
-          <Col md="12">
-            <Card className="card-plain">
-              <CardHeader>
-                <CardTitle tag="h4">Table on Plain Background</CardTitle>
-                <p className="category">Here is a subtitle for this table</p>
-              </CardHeader>
-              <CardBody>
-                <Table className="tablesorter" responsive>
-                  <thead className="text-primary">
-                    <tr>
-                      <th>Name</th>
-                      <th>Country</th>
-                      <th>City</th>
-                      <th className="text-center">Salary</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>Dakota Rice</td>
-                      <td>Niger</td>
-                      <td>Oud-Turnhout</td>
-                      <td className="text-center">$36,738</td>
-                    </tr>
-                    <tr>
-                      <td>Minerva Hooper</td>
-                      <td>Curaçao</td>
-                      <td>Sinaai-Waas</td>
-                      <td className="text-center">$23,789</td>
-                    </tr>
-                    <tr>
-                      <td>Sage Rodriguez</td>
-                      <td>Netherlands</td>
-                      <td>Baileux</td>
-                      <td className="text-center">$56,142</td>
-                    </tr>
-                    <tr>
-                      <td>Philip Chaney</td>
-                      <td>Korea, South</td>
-                      <td>Overland Park</td>
-                      <td className="text-center">$38,735</td>
-                    </tr>
-                    <tr>
-                      <td>Doris Greene</td>
-                      <td>Malawi</td>
-                      <td>Feldkirchen in Kärnten</td>
-                      <td className="text-center">$63,542</td>
-                    </tr>
-                    <tr>
-                      <td>Mason Porter</td>
-                      <td>Chile</td>
-                      <td>Gloucester</td>
-                      <td className="text-center">$78,615</td>
-                    </tr>
-                    <tr>
-                      <td>Jon Porter</td>
-                      <td>Portugal</td>
-                      <td>Gloucester</td>
-                      <td className="text-center">$98,615</td>
-                    </tr>
+                    {data.map(book => (
+                      <tr className="item-book" key={book._id} onClick={() => selectBook(book)}>
+                        <td>{book.name}</td>
+                        <td>{book.description}</td>
+                        <td>{book.price}đ</td>
+                      </tr>
+                    ))}
+
                   </tbody>
                 </Table>
               </CardBody>
             </Card>
           </Col>
         </Row>
+        <AddModal isOpen={openAdd} handleAddModal={handleAddModal} addBook={addBook} />
+        <EditModal isOpen={openEdit} handleEditModal={handleEditModal} book={selectedBook} editBook={editBook} deleteBook={deleteBook} />
       </div>
     </>
   );

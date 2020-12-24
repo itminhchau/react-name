@@ -8,4 +8,6 @@ app.use(express.json());
 
 app.use("/user", require("./routes/UserRoute"));
 
+app.use("/book", require("./routes/BookRouter"));
+
 module.exports = app;
